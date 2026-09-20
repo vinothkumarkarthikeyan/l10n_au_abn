@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--
+            Demo data: Australian contacts with valid ABN/ACN numbers.
+            These are real, publicly available ABNs for well-known organisations.
+        -->
+
+        <record id="demo_partner_qantas" model="res.partner">
+            <field name="name">Qantas Airways Limited</field>
+            <field name="is_company" eval="True"/>
+            <field name="l10n_au_abn">16 009 661 901</field>
+            <field name="l10n_au_acn">009 661 901</field>
+            <field name="country_id" ref="base.au"/>
+            <field name="city">Mascot</field>
+            <field name="state_id" ref="base.state_au_2"/>
+        </record>
+
+        <record id="demo_partner_woolworths" model="res.partner">
+            <field name="name">Woolworths Group Limited</field>
+            <field name="is_company" eval="True"/>
+            <field name="l10n_au_abn">88 000 014 675</field>
+            <field name="l10n_au_acn">000 014 675</field>
+            <field name="country_id" ref="base.au"/>
+            <field name="city">Bella Vista</field>
+            <field name="state_id" ref="base.state_au_2"/>
+        </record>
+
+        <record id="demo_partner_commbank" model="res.partner">
+            <field name="name">Commonwealth Bank of Australia</field>
+            <field name="is_company" eval="True"/>
+            <field name="l10n_au_abn">48 123 123 124</field>
+            <field name="country_id" ref="base.au"/>
+            <field name="city">Sydney</field>
+            <field name="state_id" ref="base.state_au_2"/>
+        </record>
+
+    </data>
+</odoo>

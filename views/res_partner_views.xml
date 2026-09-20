@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Extend the contact (res.partner) form view to display
+        ABN and ACN fields in a dedicated "Australian Tax Info" group.
+    -->
+
+    <!-- ============================================================
+         FORM VIEW — Add ABN/ACN fields to contact form
+         ============================================================ -->
+    <record id="view_partner_form_abn" model="ir.ui.view">
+        <field name="name">res.partner.form.l10n_au_abn</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <!-- Insert ABN/ACN group after the VAT/Tax ID field -->
+            <field name="vat" position="after">
+                <separator string="Australian Tax Identifiers"/>
+                <group>
+                    <field name="l10n_au_abn"
+                           placeholder="e.g. 51 824 753 556"
+                           widget="char"/>
+                    <field name="l10n_au_acn"
+                           placeholder="e.g. 000 000 019"
+                           widget="char"/>
+                </group>
+            </field>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         TREE (LIST) VIEW — Show ABN column in contact list
+         ============================================================ -->
+    <record id="view_partner_tree_abn" model="ir.ui.view">
+        <field name="name">res.partner.tree.l10n_au_abn</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <field name="phone" position="after">
+                <field name="l10n_au_abn" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         SEARCH VIEW — Enable searching/filtering by ABN
+         ============================================================ -->
+    <record id="view_partner_search_abn" model="ir.ui.view">
+        <field name="name">res.partner.search.l10n_au_abn</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_res_partner_filter"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="l10n_au_abn" string="ABN"/>
+                <field name="l10n_au_acn" string="ACN"/>
+            </field>
+            <!-- Filter: Show only contacts with ABN -->
+            <filter name="filter_type_company" position="after">
+                <separator/>
+                <filter name="filter_has_abn"
+                        string="Has ABN"
+                        domain="[('l10n_au_abn', '!=', False)]"/>
+                <filter name="filter_no_abn"
+                        string="Missing ABN"
+                        domain="[('l10n_au_abn', '=', False), ('is_company', '=', True)]"/>
+            </filter>
+        </field>
+    </record>
+
+</odoo>
