@@ -1,142 +1,126 @@
-# 🇦🇺 Odoo Australian ABN & ACN Validation (`l10n_au_abn`)
+# Australian ABN / ACN Validation for Odoo 17
 
-> Community module for validating Australian Business Numbers (ABN) and Australian Company Numbers (ACN) in Odoo contacts, using the official ATO and ASIC algorithms.
+[![License: LGPL-3](https://img.shields.io/badge/License-LGPL--3.0-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Odoo](https://img.shields.io/badge/Odoo-17.0-875A7B.svg)](https://www.odoo.com)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](https://www.python.org)
+[![CI](https://github.com/vinothkumarkarthikeyan/l10n_au_abn/actions/workflows/ci.yml/badge.svg)](https://github.com/vinothkumarkarthikeyan/l10n_au_abn/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-30%2B-brightgreen.svg)](#testing)
 
-[![License: LGPL-3](https://img.shields.io/badge/License-LGPL--3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![Odoo Version](https://img.shields.io/badge/Odoo-17.0-purple.svg)](https://www.odoo.com)
-[![Python](https://img.shields.io/badge/Python-3.10+-green.svg)](https://python.org)
+An Odoo 17 localisation module that validates and auto-formats **Australian Business Numbers (ABN)** and **Australian Company Numbers (ACN)** at the point of entry — stopping invalid tax identifiers and duplicate records before they ever reach your database.
+
+Built to the official **ATO** and **ASIC** specifications, with the check-digit algorithms implemented from scratch and covered by 30+ automated tests.
 
 ---
 
-## The Problem
+## 📸 Screenshots
 
-Australian businesses are required to validate ABN and ACN numbers for invoicing, BAS reporting, and ATO compliance. Odoo's core `l10n_au` module provides chart of accounts and tax codes, but **does not validate ABN/ACN numbers** on contact records — allowing users to enter invalid identifiers that cause downstream compliance issues.
+![alt text](<Screenshot 2026-09-27 at 10.00.04 pm.png>)
+![alt text](<Screenshot 2026-09-27 at 10.07.23 pm.png>)
+![alt text](<Screenshot 2026-09-27 at 10.35.55 pm.png>)
+> Suggested shots: (1) a valid ABN auto-formatting on entry, (2) the validation error on an invalid ABN, (3) the duplicate-prevention message.
 
-## What This Module Does
+| Valid ABN (auto-formatted) | Invalid ABN (rejected) |
+|---|---|
+| _screenshot_ | _screenshot_ |
 
-| Feature | Description |
-|---------|-------------|
-| **ABN Validation** | Validates using the official [ATO weighted modulus 89 algorithm](https://abr.business.gov.au/Help/AbnFormat) |
-| **ACN Validation** | Validates using the [ASIC check-digit algorithm](https://asic.gov.au/for-business/registering-a-company/steps-to-register-a-company/australian-company-numbers/) |
-| **Auto-Formatting** | Formats ABN as `XX XXX XXX XXX` and ACN as `XXX XXX XXX` as the user types |
-| **Duplicate Detection** | SQL constraint prevents the same ABN/ACN from being assigned to multiple contacts |
-| **Search & Filter** | Search contacts by ABN/ACN; filter to find companies missing ABN |
-| **Demo Data** | Pre-loaded with real Australian company ABNs (Qantas, Woolworths) for testing |
-| **30+ Unit Tests** | Comprehensive test coverage for all validation logic and edge cases |
+---
 
-## Screenshots
+## ✨ Features
 
-After installing, the contact form shows:
+- **ABN validation** using the official **ATO weighted modulus 89** algorithm (11 digits)
+- **ACN validation** using the official **ASIC check-digit** algorithm (9 digits)
+- **Real-time auto-formatting** — `XX XXX XXX XXX` for ABN, `XXX XXX XXX` for ACN — via `@api.onchange`
+- **Duplicate prevention** through a database-level SQL constraint
+- **Clear, user-friendly error messages** that explain *why* an entry was rejected
+- **Search & filter** on validated identifiers
+- Ships with **demo data** (real, well-known Australian company ABNs) for instant testing
 
-```
-┌─────────────────────────────────────┐
-│  Contact: Qantas Airways Limited    │
-│  ─────────────────────────────────  │
-│  Australian Tax Identifiers         │
-│  ABN: [ 16 009 661 901 ]           │
-│  ACN: [ 009 661 901     ]           │
-└─────────────────────────────────────┘
-```
+---
 
-If an invalid ABN is entered:
-```
-⚠️ Invalid Australian Business Number (ABN): '12345678901'.
-   An ABN must be exactly 11 digits and pass the ATO modulus 89 check.
-   Please verify at https://abr.business.gov.au/
-```
+## 🧮 How It Works
 
-## Installation
+**ABN — ATO Modulus 89**
+1. Subtract 1 from the first (leftmost) digit.
+2. Multiply each of the 11 digits by its position weight `[10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]`.
+3. Sum the results. The ABN is valid if the total is divisible by 89.
+
+**ACN — ASIC Check Digit**
+1. Multiply the first 8 digits by weights `[8, 7, 6, 5, 4, 3, 2, 1]` and sum them.
+2. The check digit is `(10 − (sum mod 10)) mod 10`; it must match the 9th digit.
+
+_Example:_ Qantas Airways — ABN `16 009 661 901` → passes the modulus-89 check and auto-formats on entry.
+
+---
+
+## 🚀 Installation
 
 ```bash
-# Clone this module into your Odoo addons directory
+# 1. Clone into your Odoo addons path
+cd /path/to/odoo/addons
 git clone https://github.com/vinothkumarkarthikeyan/l10n_au_abn.git
 
-# Add the parent directory to Odoo's addons path
-python odoo-bin --addons-path=addons,/path/to/l10n_au_abn -d mydb
-
-# Install via Odoo UI:
-# Settings → Apps → Search "ABN" → Install
+# 2. Update the apps list and install
+#    Odoo → Apps → Update Apps List → search "Australian ABN / ACN" → Install
+#    or from the command line:
+odoo -d your_database -i l10n_au_abn
 ```
 
-## How the ABN Algorithm Works
+**Requirements:** Odoo 17.0, Python 3.10+, PostgreSQL.
 
-The ATO uses a **weighted modulus 89** check:
+---
 
-```python
-def validate_abn(abn: str) -> bool:
-    """
-    1. Subtract 1 from the first digit
-    2. Multiply each digit by weights: [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
-    3. Sum all products
-    4. Valid if sum % 89 == 0
-    """
-    weights = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
-    digits = [int(d) for d in abn]
-    digits[0] -= 1
-    return sum(d * w for d, w in zip(digits, weights)) % 89 == 0
+## 🧑‍💻 Usage
+
+1. Open any record with an ABN/ACN field (e.g. a Contact or Company).
+2. Type an identifier — it auto-formats as you go.
+3. Invalid identifiers are rejected immediately with an explanatory message.
+4. Attempting to save a duplicate is blocked by the SQL constraint.
+
+---
+
+## ✅ Testing
+
+Run the full suite (30+ tests covering the validation logic, formatting and constraints):
+
+```bash
+odoo -d test_db -i l10n_au_abn --test-enable --stop-after-init
 ```
 
-**Example** — Qantas ABN `16 009 661 901`:
-```
-Digits:   1  6  0  0  9  6  6  1  9  0  1
-Step 1:   0  6  0  0  9  6  6  1  9  0  1   (subtract 1 from first digit)
-Weights: 10  1  3  5  7  9 11 13 15 17 19
-Products: 0  6  0  0 63 54 66 13 135  0 19
-Sum: 356
-356 ÷ 89 = 4 remainder 0 ✅ Valid!
-```
+Every push runs these tests automatically via GitHub Actions — see the **CI badge** at the top.
 
-## Module Structure
+---
+
+## 📁 Project Structure
 
 ```
 l10n_au_abn/
-├── __manifest__.py           # Module metadata & dependencies
-├── __init__.py               # Root package init
-├── models/
-│   ├── __init__.py
-│   └── res_partner.py        # ORM model: ABN/ACN fields + validation
-├── views/
-│   └── res_partner_views.xml # XML views: form, list, search
-├── security/
-│   └── ir.model.access.csv   # Access control rules
-├── demo/
-│   └── demo_partners.xml     # Demo data with real Australian ABNs
-├── tests/
-│   ├── __init__.py
-│   └── test_abn_validation.py # 30+ unit tests
+├── models/          # ORM models + ABN/ACN validation logic
+├── views/           # XML view definitions
+├── security/        # Access-control rules
+├── tests/           # 30+ automated unit tests
+├── demo/            # Demo data (real Australian company ABNs)
+├── __manifest__.py  # Module manifest
 └── README.md
 ```
 
-## Running Tests
+---
 
-```bash
-python odoo-bin -d test_db --test-enable --test-tags l10n_au_abn \
-    --addons-path=addons,/path/to/l10n_au_abn \
-    --stop-after-init
-```
+## 🗺️ Roadmap
 
-## Future Enhancements
+Current release (**v1.0**) delivers complete offline validation and formatting. Possible future enhancements:
 
-- [ ] **ABR API Integration** — Look up company details from ABN via the [Australian Business Register API](https://abr.business.gov.au/abrxmlsearch/)
-- [ ] **ABA Bank File Generation** — Generate ABA payment files for Australian bank transfers
-- [ ] **GST Registration Status** — Check if a business is registered for GST via ABR lookup
-- [ ] **ARBN Support** — Australian Registered Body Number validation for foreign companies
+- [ ] Live ABN lookup via the ABR (Australian Business Register) API
+- [ ] GST-registration status checks
+- [ ] ARBN support for registered foreign companies
 
-## Contributing
+---
 
-Contributions welcome! Please:
-1. Fork this repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Follow [Odoo's coding guidelines](https://www.odoo.com/documentation/17.0/developer/reference/guidelines.html)
-4. Write tests for new functionality
-5. Submit a Pull Request
+## 📄 License
 
-## License
+Licensed under the **LGPL-3.0** — see [LICENSE](LICENSE).
 
-This module is licensed under [LGPL-3](https://www.gnu.org/licenses/lgpl-3.0.en.html), consistent with the Odoo Community Association (OCA) standard.
+## 👤 Author
 
-## Author
+**Vinoth Kumar Karthikeyan** — [LinkedIn](https://www.linkedin.com/in/vinothkarthikeyan21/) · [GitHub](https://github.com/vinothkumarkarthikeyan)
 
-**Vinoth Kumar Karthikeyan**
-- GitHub: [@vinothkumarkarthikeyan](https://github.com/vinothkumarkarthikeyan)
-- LinkedIn: [vinothkarthikeyan21](https://linkedin.com/in/vinothkarthikeyan21)
+_Built with a focus on correctness, clear documentation, and full test coverage — feedback and contributions welcome._
