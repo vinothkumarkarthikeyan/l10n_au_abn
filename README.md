@@ -22,13 +22,7 @@ Built to the official **ATO** and **ASIC** specifications, with the check-digit 
 
 **Duplicate ABN — blocked**
 ![Duplicate blocked](docs/images/duplicate.png)
-> Suggested shots: (1) a valid ABN auto-formatting on entry, (2) the validation error on an invalid ABN, (3) the duplicate-prevention message.
 
-| Valid ABN (auto-formatted) | Invalid ABN (rejected) |
-|---|---|
-| _screenshot_ | _screenshot_ |
-
----
 
 ## ✨ Features
 
