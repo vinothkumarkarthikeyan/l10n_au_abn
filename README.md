@@ -14,9 +14,14 @@ Built to the official **ATO** and **ASIC** specifications, with the check-digit 
 
 ## 📸 Screenshots
 
-![alt text](<Screenshot 2026-09-27 at 10.00.04 pm.png>)
-![alt text](<Screenshot 2026-09-27 at 10.07.23 pm.png>)
-![alt text](<Screenshot 2026-09-27 at 10.35.55 pm.png>)
+**Valid ABN — auto-formats on entry**
+![Valid ABN](docs/images/valid-abn.png)
+
+**Invalid ABN — rejected**
+![Invalid ABN](docs/images/invalid-abn.png)
+
+**Duplicate ABN — blocked**
+![Duplicate blocked](docs/images/duplicate.png)
 > Suggested shots: (1) a valid ABN auto-formatting on entry, (2) the validation error on an invalid ABN, (3) the duplicate-prevention message.
 
 | Valid ABN (auto-formatted) | Invalid ABN (rejected) |
